@@ -1,0 +1,84 @@
+table Calendario
+	lineageTag: 147e7fa2-68b4-4f6b-b056-fb12191efb21
+	dataCategory: Time
+
+	column Date
+		isKey
+		formatString: General Date
+		lineageTag: 0d630ef5-6c00-409b-bdc4-71a0a7c7cacd
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: [Date]
+
+		annotation SummarizationSetBy = Automatic
+
+	column Año
+		formatString: 0
+		lineageTag: 103d3708-62f7-4055-897c-058edad0a924
+		summarizeBy: sum
+		isNameInferred
+		sourceColumn: [Año]
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Mes Num'
+		formatString: 0
+		lineageTag: d49566fc-0b86-4331-a474-345d2713ced5
+		summarizeBy: sum
+		isNameInferred
+		sourceColumn: [Mes Num]
+
+		annotation SummarizationSetBy = Automatic
+
+	column Mes
+		lineageTag: 319a8551-608a-480b-bca6-15d6d0234ac5
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: [Mes]
+		sortByColumn: 'AñoMes Num'
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Día Semana Num'
+		formatString: 0
+		lineageTag: b764e7b7-787e-4f3f-9a8e-c6395b98ee7d
+		summarizeBy: sum
+		isNameInferred
+		sourceColumn: [Día Semana Num]
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Día Semana'
+		lineageTag: 48468dff-96cf-49a4-9df4-afe07c65ed98
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: [Día Semana]
+		sortByColumn: 'Día Semana Num'
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'AñoMes Num' = YEAR(Calendario[Date]) * 100 + MONTH(Calendario[Date])
+		formatString: 0
+		lineageTag: 55c4e954-f84e-4f3d-83af-29ad6d0e1123
+		summarizeBy: none
+
+		annotation SummarizationSetBy = Automatic
+
+	partition Calendario = calculated
+		mode: import
+		source =
+				
+				ADDCOLUMNS(
+				    CALENDAR(
+				        DATE(YEAR(MIN(ventas[Fecha])), MONTH(MIN(ventas[Fecha])), 1),
+				        EOMONTH(MAX(ventas[Fecha]), 0)
+				    ),
+				    "Año", YEAR([Date]),
+				    "Mes Num", MONTH([Date]),
+				    "Mes", FORMAT([Date], "mmm yyyy"),
+				    "Día Semana Num", WEEKDAY([Date], 2),
+				    "Día Semana", FORMAT([Date], "dddd")
+				)
+
+	annotation PBI_Id = eb9c64a8dc30405f9536fe8b9b919671
+

@@ -1,0 +1,9 @@
+relationship 4a8a4b91-7516-41ec-a8b5-32c75c3276f0
+	joinOnDateBehavior: datePartOnly
+	fromColumn: ventas.FechaHora
+	toColumn: LocalDateTable_a334be98-8a70-4244-926b-3336001e0813.Date
+
+relationship f969550e-190a-79ac-8dab-8c460b2dc636
+	fromColumn: ventas.Fecha
+	toColumn: Calendario.Date
+

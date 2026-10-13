@@ -1,0 +1,94 @@
+table ventas
+	lineageTag: 7ec897de-dc79-4585-a28f-e59461f6fd91
+
+	measure 'Ventas Totales' = SUM(ventas[Monto])
+		formatString: \$#,0.###############;-\$#,0.###############;\$#,0.###############
+		lineageTag: f3743dd3-52ca-4e48-ba78-38a6e679ca3e
+
+		annotation PBI_FormatHint = {"currencyCulture":"es-MX"}
+
+	column Fecha
+		dataType: dateTime
+		formatString: Long Date
+		lineageTag: f2a15f32-9719-4ebf-ac62-0dcffff9a354
+		summarizeBy: none
+		sourceColumn: Fecha
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column FechaHora
+		dataType: dateTime
+		formatString: General Date
+		lineageTag: eb90d156-b63c-4361-8c1c-e31ca639b3b4
+		summarizeBy: none
+		sourceColumn: FechaHora
+
+		variation Variación
+			isDefault
+			relationship: 4a8a4b91-7516-41ec-a8b5-32c75c3276f0
+			defaultHierarchy: LocalDateTable_a334be98-8a70-4244-926b-3336001e0813.'Jerarquía de fechas'
+
+		annotation SummarizationSetBy = Automatic
+
+	column TipoPago
+		dataType: string
+		lineageTag: 5edbb22c-903a-4965-9d29-7c252a3838c9
+		summarizeBy: none
+		sourceColumn: TipoPago
+
+		annotation SummarizationSetBy = Automatic
+
+	column Tarjeta
+		dataType: string
+		lineageTag: d0459bc1-8b73-43c7-9518-2e4a4686de06
+		summarizeBy: none
+		sourceColumn: Tarjeta
+
+		annotation SummarizationSetBy = Automatic
+
+	column Monto
+		dataType: decimal
+		formatString: \$#,0.###############;-\$#,0.###############;\$#,0.###############
+		lineageTag: 4d0ab3a6-ad91-4292-b4ab-1214a6c7391b
+		summarizeBy: sum
+		sourceColumn: Monto
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"currencyCulture":"es-MX"}
+
+	column Producto
+		dataType: string
+		lineageTag: fafcd260-ce16-4c29-bbda-79842da57226
+		summarizeBy: none
+		sourceColumn: Producto
+
+		annotation SummarizationSetBy = Automatic
+
+	column Hora
+		dataType: int64
+		formatString: 0
+		lineageTag: fac56947-1d33-4df1-af93-c9307a021e7f
+		summarizeBy: sum
+		sourceColumn: Hora
+
+		annotation SummarizationSetBy = Automatic
+
+	partition ventas = m
+		mode: import
+		source =
+				let
+				    Origen = Csv.Document(File.Contents("C:\Users\Hiram\Downloads\index_1.csv"),[Delimiter=",", Columns=6, Encoding=1252, QuoteStyle=QuoteStyle.None]),
+				    #"Encabezados promovidos" = Table.PromoteHeaders(Origen, [PromoteAllScalars=true]),
+				    #"Tipo cambiado" = Table.TransformColumnTypes(#"Encabezados promovidos",{{"date", type date}, {"datetime", type datetime}, {"cash_type", type text}, {"card", type text}, {"money", Currency.Type}, {"coffee_name", type text}}),
+				    #"Hora insertada" = Table.AddColumn(#"Tipo cambiado", "Hora", each Time.Hour([datetime]), Int64.Type),
+				    #"Columnas con nombre cambiado" = Table.RenameColumns(#"Hora insertada",{{"date", "Fecha"}, {"datetime", "FechaHora"}, {"cash_type", "TipoPago"}, {"card", "Tarjeta"}, {"money", "Monto"}, {"coffee_name", "Producto"}})
+				in
+				    #"Columnas con nombre cambiado"
+
+	annotation PBI_NavigationStepName = Navegación
+
+	annotation PBI_ResultType = Table
+
